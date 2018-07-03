@@ -18,6 +18,8 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var postArray = [];
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -37,35 +39,52 @@ var requestHandler = function(request, response) {
   
   var statusCode = 200;
   
-  console.log('Requests: ', request);
+  // console.log('Requests: ', request);
 
-  console.log('Response: ', response);
+  // console.log('Response: ', response);
 
   if (request.method === 'GET' && request.url === '/classes/messages') {
+    // set status code
     statusCode = 200;
-    // var resData = {};
-    let resultsArr = [];
-    request.on('data', (chunk) => {
-      resultsArr.push(chunk);
-    });
-    console.log('Results array: ', resultsArr);
-    request.on('end', () => {
-      resultsArr = Buffer.concat(resultsArr).toString();
-    });
-    // resData.results = results;
-    response.write(JSON.stringify({ results: resultsArr}));
-    console.log('Response #2: ', response);
-    response.end();
-  }
-  
-  if (request.method === 'POST' && request.url === '/classes/messages') {
-    statusCode = 201;
-    console.log('postData', request._postData);
-    if (request._postData) {
-      console.log('hiiiiiiiiii: ', JSON.stringify(request._postData));
-      response.write(request._postData);
-      response.end();
+    // initialize header stuff
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(statusCode, headers);
+    // create an object with the results array
+    let dataObj = { results: [] };
+    // access the data
+    if (postArray.length > 0) {
+    // stringify the data into a results array on an object
+      console.log('requestBody in GET: ', postArray);
+      for (let item of postArray) {
+        dataObj.results.push(item);
+      }
     }
+    // send that stringified object back to the client
+      // do this with .end not .write
+    response.end(JSON.stringify(dataObj));
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
+    statusCode = 201;
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(statusCode, headers);
+    var requestBody = ''
+    // write (with end) the data onto the server (should show up on the server page)
+    request.on('data', function(data) {
+      requestBody += data;
+    });
+    console.log('This is requestBody: ', requestBody);
+    request.on('end', function() {
+      console.log('This is requestBody parse: ', JSON.parse(requestBody));
+      postArray.push(JSON.parse(requestBody));
+      // response.end(requestBody);
+    });
+  } else {
+    statusCode = 404;
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'text/plain';
+    response.writeHead(statusCode, headers);
+    response.end();
   }
 
   // The outgoing status.
@@ -81,7 +100,7 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  console.log('Status Code: ', statusCode);
+  // console.log('Status Code: ', statusCode);
   response.writeHead(statusCode, headers);
 
   // Make sure to always call response.end() - Node may not send
