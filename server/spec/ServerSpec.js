@@ -49,7 +49,7 @@ describe('Node Server Request Listener Function', function() {
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
-
+    console.log(res);
     var parsedBody = JSON.parse(res._data);
     expect(parsedBody).to.have.property('results');
     expect(parsedBody.results).to.be.an('array');
