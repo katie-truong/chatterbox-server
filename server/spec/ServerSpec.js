@@ -49,6 +49,7 @@ describe('Node Server Request Listener Function', function() {
     var res = new stubs.response();
 
     handler.requestHandler(req, res);
+
     var parsedBody = JSON.parse(res._data);
     expect(parsedBody).to.have.property('results');
     expect(parsedBody.results).to.be.an('array');
@@ -100,6 +101,16 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Should answer OPTION requests for /classes/messages', function() {
+    // This is a fake server request. Normally, the server would provide this,
+    // but we want to test our function's behavior totally independent of the server code
+    var req = new stubs.request('/classes/messages', 'OPTION');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+    
+    expect(res._ended).to.equal(true);
+  });
 
   it('Should 404 when asked for a nonexistent file', function() {
     var req = new stubs.request('/arglebargle', 'GET');

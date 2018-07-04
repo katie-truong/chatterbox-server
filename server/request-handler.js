@@ -12,11 +12,11 @@ const options = {
 
 var example = {
   username: 'David',
-  text: 'testttt'
+  text: 'test server'
 };
 
 var body = [];
-var counter = 0;
+//var counter = 0;
 
 
 var requestHandler = function(request, response) {
@@ -52,8 +52,8 @@ var requestHandler = function(request, response) {
       requestBody += data;
     });
     request.on('end', function() {
-      counter++;
-      requestBody.objectId = counter;
+      //counter++;
+      //requestBody.objectId = counter;
       body.push(JSON.parse(requestBody));
       response.end();
     });
@@ -69,7 +69,7 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end();
   }
-  statusCode = 200;
+  // statusCode = 200;
   // initialize header stuff
   var headers = defaultCorsHeaders;
   // make sure to change content-type to application/json
